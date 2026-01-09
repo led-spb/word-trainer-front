@@ -58,13 +58,13 @@
         return result.join('')
     }
 
-    function encodeSpaces(value: string): string {
+    function encodeSpaces(value: any): any {
         return value && value.replace(' ',' ')
     }
 
-    function zip() {
-        var args = [].slice.call(arguments);
-        var longest = args.reduce(function(a,b){
+    function zip(...values: any[]) {
+        var args = [].slice.call(values);
+        var longest = args.reduce(function(a: Array<any>, b :Array<any>){
             return a.length > b.length ? a : b
         }, []);
 

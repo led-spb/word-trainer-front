@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import {ref} from 'vue'
   import {useRouter, useRoute} from 'vue-router'
-  import {usersApi} from '../api/users'
-  import {useAuthStore} from '../stores/auth';
+  import {usersApi} from '@/api/users'
+  import {useAuthStore} from '@/stores';
 
   const auth = useAuthStore()
   const router = useRouter()
@@ -20,9 +20,9 @@
 
         const redirectPath = route.query.redirect;
         if( redirectPath ){
-          router.push({path: ""+redirectPath})
+            router.push({path: ""+redirectPath})
         }else{
-          router.push({name: "default"})
+            router.push({name: "about"})
         }
       }
     )

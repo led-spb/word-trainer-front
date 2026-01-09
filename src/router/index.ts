@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores'
 
 
 const router = createRouter({
@@ -8,7 +8,6 @@ const router = createRouter({
     routes: [ 
         {
             path: '/',
-            name: 'default',
             component: () => import('@/layouts/Main.vue'),
             children: [
                 {   path: '',
@@ -16,15 +15,20 @@ const router = createRouter({
                     component: () => import('@/pages/About.vue')
                 },
                 {
-                    path: 'exam',
-                    name: 'exam',
-                    component: () => import('@/pages/Exam.vue'),
+                    path: 'spelling',
+                    name: 'spelling',
+                    component: () => import('@/pages/Spelling.vue'),
                     meta: { requiresAuth: true }
                 },
                 {
                     path: 'login',
                     name: 'login',
                     component: () => import('@/pages/Login.vue')
+                },
+                {
+                    path: 'logout',
+                    name: 'logout',
+                    component: () => import('@/pages/Logout.vue')
                 },
             ]
         },

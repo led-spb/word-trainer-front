@@ -2,8 +2,7 @@
     import { onMounted, ref } from 'vue';
     import WordExam from '@/components/WordExam.vue';
 
-    import { useWordsStore } from '@/stores/words';
-    import { useStatsStore } from '@/stores/stats';
+    import { useWordsStore, useStatsStore} from '@/stores';
 
     import { usersApi } from '@/api/users';
 

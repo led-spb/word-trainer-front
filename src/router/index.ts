@@ -11,8 +11,8 @@ const router = createRouter({
             component: () => import('@/layouts/Main.vue'),
             children: [
                 {   path: '',
-                    name: 'about',
-                    component: () => import('@/pages/About.vue')
+                    name: 'home',
+                    component: () => import('@/pages/Home.vue')
                 },
                 {
                     path: 'spelling',
@@ -49,7 +49,7 @@ router.beforeEach(async (to, from) => {
     }
 
     if( auth.isAuthentificated && to.name == 'login'){
-        return {name: 'about'}
+        return {name: 'home'}
     }
 })
 

@@ -5,7 +5,7 @@ const usersApi = {
     async getCurrentUser(callback: ((data: any) => void) | undefined){
         const response = await axiosInstance({
             method: 'get',
-            url: 'users'
+            url: 'user',
         })
         if (callback)
             callback(response.data)
@@ -24,6 +24,15 @@ const usersApi = {
             callback(response.data)
     },
 
+    async getUserStat(callback: ((data: any) => void) | undefined) {
+        const response = await axiosInstance({
+            method: 'get',
+            url: 'user/stat',
+        })
+        if (callback)
+            callback(response.data)
+    },
+
     async sendUserStat(success: Array<Number>, failed: Array<Number> ){
         await axiosInstance({
             method: 'put',
@@ -33,4 +42,4 @@ const usersApi = {
     }
 }
 
-export {usersApi}
+export { usersApi }

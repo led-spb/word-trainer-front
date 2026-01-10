@@ -38,7 +38,7 @@
 </script>
 
 <template>
-    <div class="row" style="min-height: 30vh"></div>
+    <div class="row" style="min-height: 20vh"></div>
     <div class="row justify-center">
         <va-card stripe :stripe-color='inProcess?"secondary":isSuccess?"success":"danger"' class="flex flex-col">
             <va-card-title>Орфограммы/Словарные слова</va-card-title>

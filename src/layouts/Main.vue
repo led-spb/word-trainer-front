@@ -1,19 +1,35 @@
 <script setup lang="ts">
-    import { ref, computed } from 'vue';
+    import { ref, computed, onMounted } from 'vue';
     import { useAuthStore } from '@/stores';
     import {useRouter, useRoute} from 'vue-router'
-    
+    import { useColors } from 'vuestic-ui';
 
     const showSidebar = ref(false)
     const auth = useAuthStore()
     const router = useRouter()
+    const colorManager = useColors()
+
+    const darkTheme = computed({
+        get() {
+            return colorManager.currentPresetName.value == 'dark'
+        },
+        set(value: boolean) {
+            colorManager.applyPreset(value?'dark':'light')
+            localStorage.setItem('darkMode', JSON.stringify(value))
+        }
+    })
+
+    onMounted(() =>{
+        const value = localStorage.getItem('darkMode') || 'false'
+        darkTheme.value = JSON.parse(value)
+    })
 
     const links = [
-        {name: 'Домой', route: 'about', visible: () => true},
+        {name: 'Домой', route: 'about', icon: 'home', visible: () => true},
         {name: 'Тренировка', route: 'spelling', visible: () => auth.isAuthentificated},
-        {name: 'Вход', route: 'login', visible: () => !auth.isAuthentificated},
+        {name: 'Вход', route: 'login', icon: 'login', visible: () => !auth.isAuthentificated},
         {name: 'Профиль', route: 'profile', visible: () => auth.isAuthentificated},
-        {name: 'Выход', route: 'logout', visible: () => auth.isAuthentificated },
+        {name: 'Выход', route: 'logout', icon: 'logout', visible: () => auth.isAuthentificated },
     ]
     const panelItems = computed( () => {
         return links.filter(item => item.visible())
@@ -42,8 +58,6 @@
                 <va-navbar-item class="font-bold text-lg"></va-navbar-item>
             </template>
         </va-navbar>
-
-
 
         <div class="content">
         <va-sidebar>
@@ -78,28 +92,29 @@
                     @click="setLinkActive(item)"
                 >
                     <va-sidebar-item-content>
+                        <va-icon :name="item.icon" v-if="item.icon"/>
                         <va-sidebar-item-title>{{ item.name }}</va-sidebar-item-title>
                     </va-sidebar-item-content>
 
                 </va-sidebar-item>
-                
-                <!-- <va-sidebar-item>
-                    <va-sidebar-item-content>
-                        <va-sidebar-item-title>Home</va-sidebar-item-title>
-                    </va-sidebar-item-content>
-                </va-sidebar-item>
 
+                <va-spacer/>
                 <va-sidebar-item>
                     <va-sidebar-item-content>
-                        <va-sidebar-item-title>Login</va-sidebar-item-title>
+                        <va-switch size="small" v-model="darkTheme">
+                            <template #innerLabel>
+                                <va-icon :name="darkTheme ? 'dark_mode' : 'light_mode'"></va-icon>
+                            </template>
+                        </va-switch>
+                    </va-sidebar-item-content>
+                </va-sidebar-item>
+                <va-sidebar-item>
+                    <va-sidebar-item-content>
+                        <va-icon name="settings"/>
+                        <va-sidebar-item-title>Настройки</va-sidebar-item-title>
                     </va-sidebar-item-content>
                 </va-sidebar-item>
 
-                <va-sidebar-item @click="">
-                    <va-sidebar-item-content>
-                        <va-sidebar-item-title>Spelling</va-sidebar-item-title>
-                    </va-sidebar-item-content>
-                </va-sidebar-item> -->
             </va-sidebar>
 
         </template>
@@ -113,14 +128,4 @@
 
 
 <style scoped>
-    /*
-    .container {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-
-    .content {
-        flex-grow: 1;
-    }*/
 </style>

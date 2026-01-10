@@ -19,13 +19,13 @@
         if( success ){
             stats.incRight()
             usersApi.sendUserStat([words.currentWord['id']], [])
+
+            timeoutId = setTimeout(() => nextWord(), 3000)
         }else{
             stats.incWrong()
             usersApi.sendUserStat([], [words.currentWord['id']])
         }
         inProcess.value = false
-
-        timeoutId = setTimeout(() => nextWord(), 3000)
     }
 
     function nextWord(){
@@ -43,10 +43,12 @@
         <va-card stripe :stripe-color='inProcess?"secondary":isSuccess?"success":"danger"' class="flex flex-col">
             <va-card-title>Орфограммы/Словарные слова</va-card-title>
             <va-card-content>
+                <div class="row" style="min-height: 1vh;"></div>
                 <spelling-exam class="row justify-center"
                     v-model="words.currentWord" v-if="words.currentWord"
                     v-on:on-right="processAnswer(true)" v-on:on-wrong="processAnswer(false)">
                 </spelling-exam>
+                <div class="row" style="min-height: 1vh;"></div>
                 <div class="va-text-block" v-if="!!words.currentWord?.context">
                     <span>{{ words.currentWord?.context }}</span>
                 </div>

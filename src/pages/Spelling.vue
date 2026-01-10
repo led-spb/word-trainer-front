@@ -43,7 +43,7 @@
         <va-card stripe :stripe-color='inProcess?"secondary":isSuccess?"success":"danger"' class="flex flex-col">
             <va-card-title>Орфограммы/Словарные слова</va-card-title>
             <va-card-content>
-                <spelling-exam
+                <spelling-exam class="row justify-center"
                     v-model="words.currentWord" v-if="words.currentWord"
                     v-on:on-right="processAnswer(true)" v-on:on-wrong="processAnswer(false)">
                 </spelling-exam>
@@ -51,8 +51,9 @@
                     <span>{{ words.currentWord?.context }}</span>
                 </div>
                 <va-divider/>
-
-                <va-button :disabled="inProcess" class="primary" icon-right="arrow_forward" v-on:click="nextWord()">Дальше</va-button>
+                <div class="row justify-center">
+                    <va-button :disabled="inProcess" class="primary" icon-right="arrow_forward" v-on:click="nextWord()">Дальше</va-button>
+                </div>
             </va-card-content>
         </va-card>
     </div>

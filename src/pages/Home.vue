@@ -16,14 +16,6 @@
 
 <template>
     <div class="row justify-center">
-        <!-- <va-card>
-            <va-card-title>Топ слов с ошибками</va-card-title>
-            <va-card-content>
-                <ol class="va-ordered">
-                    <li v-for="item in userStore.currentUserStat?.failed">{{ item.word.fullword }}</li>
-                </ol>
-            </va-card-content>
-        </va-card> -->
 
         <va-card>
             <va-card-title>Топ слов с ошибками</va-card-title>
@@ -46,5 +38,6 @@
                 </div>
                 </va-card-content>
         </va-card>
-    </div>    
+
+</div>    
 </template>

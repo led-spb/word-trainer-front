@@ -25,10 +25,10 @@
     })
 
     const links = [
-        {name: 'Домой', route: 'home', icon: 'home', visible: () => true},
-        {name: 'Тренировка', route: 'spelling', visible: () => auth.isAuthentificated},
+        {name: 'Домой', route: 'home', icon: 'home', visible: () => auth.isAuthentificated},
+        {name: 'Орфограммы', route: 'spelling', visible: () => auth.isAuthentificated},
         {name: 'Вход', route: 'login', icon: 'login', visible: () => !auth.isAuthentificated},
-        {name: 'Профиль', route: 'profile', visible: () => auth.isAuthentificated},
+        // {name: 'Профиль', route: 'profile', visible: () => auth.isAuthentificated},
         {name: 'Выход', route: 'logout', icon: 'logout', visible: () => auth.isAuthentificated },
     ]
     const panelItems = computed( () => {

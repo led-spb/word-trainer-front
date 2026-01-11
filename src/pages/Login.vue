@@ -22,7 +22,7 @@
         if( redirectPath ){
             router.push({path: ""+redirectPath})
         }else{
-            router.push({name: "about"})
+            router.push({name: "home"})
         }
       }
     )

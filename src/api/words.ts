@@ -1,18 +1,20 @@
 import { axiosInstance } from './config'
 
 const wordsApi = {
-    async getSpellingsWords(task_id: number, page: number, callback: ((data: any) => void) | undefined){
+    async getSpellingTask(count :Number, minLevel :Number, maxLevel :Number, callback: ((data: any) => void) | undefined){
         const response = await axiosInstance({
             method: 'get',
-            url: 'spellings/task/' + task_id,
+            url: 'spellings/task',
             params: {
-                page: page
+                count: count,
+                min: minLevel,
+                max: maxLevel,
             }
         })
-
         if (callback)
             callback(response.data)
     }
 }
 
-export default wordsApi
+export { wordsApi }
+

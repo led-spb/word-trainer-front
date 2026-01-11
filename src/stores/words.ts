@@ -1,34 +1,23 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import wordsApi from '../api/words'
+import { wordsApi } from '../api/words'
 
 
 export const useWordsStore = defineStore('words', () => {
     const currentWord = ref()
-    const task_id = ref(Math.ceil(Math.random()*5000))
-    const page = ref(1)
     const wordsBank = ref([].values())
-    
+
     function nextWord() {
         const item = wordsBank.value.next()
-        if( item.done ){
-            loadBank()
-        }else{
-            currentWord.value = item.value
-        }
+        currentWord.value = item.done ? undefined : item.value
     }
 
-    function loadBank(){
-        wordsApi.getSpellingsWords(task_id.value, page.value, data => {
-            const iter = data.values()
-            wordsBank.value = iter
-
-            const item = iter.next()
-            currentWord.value = item.value
-            page.value++
-          }
-        )
+    function getWords(count: Number, minLevel :Number, maxLevel :Number){
+        wordsApi.getSpellingTask( count, minLevel, maxLevel, data => {
+            wordsBank.value = data.values()
+            nextWord()
+        })
     }
 
-    return { currentWord, nextWord}
+    return { currentWord, getWords, nextWord}
 })

@@ -48,38 +48,15 @@
 
 
 <template>
-    
-    <!-- <div class="container">
-        <va-navbar color="primary" class="py-2">
-            <template #left>
-            <va-button :icon="showSidebar ? 'menu_open' : 'menu'" @click="showSidebar = !showSidebar"/>
-            </template>
-            <template #center>
-                <va-navbar-item class="font-bold text-lg"></va-navbar-item>
-            </template>
-        </va-navbar>
 
-        <div class="content">
-        <va-sidebar>
-            <va-sidebar-item>
-                <va-sidebar-item-content>heres</va-sidebar-item-content>
-            </va-sidebar-item>
-        </va-sidebar>
-            <va-content>
-                <router-view>
-                </router-view>
-            </va-content>
-        </div>
-    </div> -->
-
-    <va-layout style="min-height: 100vh;" :left="{absolute: true}">
+<va-layout style="min-height: 100vh;" :left="{absolute: true}">
         <template #top>
             <va-navbar color="primary" class="py-2">
                 <template #left>
-                <va-button :icon="showSidebar ? 'menu_open' : 'menu'" @click="showSidebar = !showSidebar"/>
+                    <va-button :icon="showSidebar ? 'menu_open' : 'menu'" @click="showSidebar = !showSidebar"/>
                 </template>
                 <template #center>
-                    <va-navbar-item class="font-bold text-lg"></va-navbar-item>
+                    <va-navbar-item class="font-bold text-lg">Тренажер слов</va-navbar-item>
                 </template>
             </va-navbar>
         </template>

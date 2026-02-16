@@ -31,7 +31,7 @@
 </script>
 
 <template>
-    <va-card>
+    <va-card class="item">
         <va-form>
         <va-card-title>admin</va-card-title>
         <va-card-content>

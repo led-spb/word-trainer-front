@@ -1,6 +1,7 @@
 
 export interface UserRegister {
-    login: string
+    email: string
+    name: string
     password: string
     invite: string
 }

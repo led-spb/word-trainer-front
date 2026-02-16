@@ -25,7 +25,8 @@
     })
 
     const form = ref({
-        login: "",
+        email: "",
+        name: "",
         password: "",
         retype: "",
     })
@@ -35,12 +36,13 @@
     })
 
     const register = () => {
-        const login = form.value.login
+        const email = form.value.email
+        const name = form.value.name
         const password = form.value.password
 
         inviteApiService.registerUser(
             <UserRegister>{
-                login, password, invite: invite.value.hash
+                email, name, password, invite: invite.value.hash
             }
         ).then( (status: any) => {
             if( !status ){
@@ -49,8 +51,8 @@
                     color: "warning",
                 })
             }else{
-                usersApiService.getToken(login, password).then( (data) => {
-                    localStorage.setItem('username', login)
+                usersApiService.getToken(email, password).then( (data) => {
+                    localStorage.setItem('username', email)
 
                     authStore.setAccessToken(data.accessToken);
                     router.push({name: "home"})
@@ -75,6 +77,7 @@
     const notEmpty = (v: string) => Boolean(v) || 'Поле обязательно для заполнения'
     const tooShort = (size :number) => (v: string) => v.length>=size || 'Слишком короткое значение'
     const wrongChars = (v: string) => /^[a-zA-Z][a-zA-Z0-9_]+$/.test(v) || 'Только латинские символы, цифры и _'
+    const isEmail = (v:string) => /.+@.+\..+/.test(v) || 'Некорректный Email'
 </script>
 
 <template>
@@ -88,7 +91,8 @@
             <va-card-title>Регистрация</va-card-title>
             <va-card-content>
                 <va-form ref="registerForm">
-                <va-input label="Логин" v-model="form.login" class="row" :rules="[notEmpty, tooShort(4), wrongChars]"/>
+                <va-input label="E-Mail" v-model="form.email" class="row" :rules="[notEmpty, tooShort(4), isEmail]"/>
+                <va-input label="Имя" v-model="form.name" class="row" :rules="[notEmpty, tooShort(4), wrongChars]"/>
                 <va-input label="Пароль" v-model="form.password" type="password" class="row" :rules="[notEmpty, tooShort(6)]"/>
                 <va-input label="Поворите пароль" v-model="form.retype" type="password" class="row"
                    :rules="[notEmpty, (v) => v == form.password || 'Пароли должны совпадать']"/>

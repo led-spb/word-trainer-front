@@ -1,5 +1,5 @@
 import type { User, UserToken, UserProgress, UserSubscriptionInfo } from "./users-api.models"
-import type { AxiosInstance } from "axios"
+import { type AxiosInstance, AxiosError } from "axios"
 
 
 export class UsersApiService {
@@ -10,18 +10,21 @@ export class UsersApiService {
         return response.data
     }
 
-    async getToken(login :string, password: string ): Promise<UserToken> {
+    async getToken(email :string, password: string ): Promise<UserToken> {
         const response = await this.axiosInstance<UserToken>({
             method: 'post',
             url: 'auth/token',
-            data: { login, password },
+            data: { email, password },
 
             validateStatus: (status: number) => {
                 return status == 200 || status == 401
             }
         })
-        if( response.status == 401 )
-            throw "User unauthorized"
+        if( response.status == 401 ){
+            const err = new AxiosError("User unauthorized", "401")
+            err.status = 401
+            throw err
+        }
         return response.data
     }
 

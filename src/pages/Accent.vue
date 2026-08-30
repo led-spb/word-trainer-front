@@ -21,7 +21,7 @@
     const ruleStore = useRuleStore()
     const statisticsStore = useStatisticsStore()
 
-    const tags = computed(() => {
+    const allAccentTags = computed(() => {
         return tagsStore.tags?.filter( (tag :any) => {
             return tag?.type == "accent"
         } )
@@ -62,7 +62,7 @@
     <common-task class="item"
         title="Ударения"
         v-model:word="wordsStore.currentWord" v-model:statistics="statisticsStore.statistic" v-model:task="task"
-        :tags="tags" :rules="currentRuleList" :total="wordsStore.totalWords" :current="wordsStore.countWord"
+        :tags="allAccentTags" :rules="currentRuleList" :total="wordsStore.totalWords" :current="wordsStore.countWord"
         @start="startExam" @next="wordsStore.nextWord" @complete="onCompleteWord">
         <accent-exam v-model="wordsStore.currentWord"></accent-exam>
     </common-task>

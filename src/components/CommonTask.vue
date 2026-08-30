@@ -3,23 +3,53 @@
     import TaskStatistic from './TaskStatistic.vue';
     import Rule from './Rule.vue';
     import type { Word } from '@/api/words';
+    import type { TreeNode } from 'vuestic-ui';
 
     const word = defineModel<Word>('word', {})
     const statistics = defineModel( 'statistics',
         {type: Object, default: {success: 0, failed: 0}}
     );
     const task = defineModel('task',
-        {type: Object, default: {count: 20, errors: 30, level: 10, tags: Array<any>}}
+        {
+            type: Object,
+            default: {
+                count: 20,
+                errors: 30,
+                level: 10,
+                tags: Array<any>
+            }
+        }
     );
     const showRules = ref(false);
 
     const props = defineProps({
         title: { type: String, default: "" },
-        tags: { type: Array<any>, default: []},
-        rules: { type: Array<any>, default: []},
-        current: { type: Number, default: 0},
-        total: {type: Number, default: 0},
+        tags: { type: Array<any>, default: [] },
+        rules: { type: Array<any>, default: [] },
+        current: { type: Number, default: 0 },
+        total: {type: Number, default: 0 },
     })
+
+    const taskTopicNodes = ref<TreeNode[]>([])
+
+    watch( () => props.tags, (tags) => {
+            //
+            const tagsObject :any = {};
+            tags.forEach(element => {
+                tagsObject[element.id] = { id: element.id, parent_id: element.parent_id, label: element.description, children: [], expanded: false }
+            });
+
+            Object.values(tagsObject).forEach((item :any) => {
+                if( item.parent_id != undefined && tagsObject[item.parent_id] != undefined ){
+                    tagsObject[item.parent_id].children.push(item)
+                }
+            });
+            taskTopicNodes.value = Object.values(tagsObject).filter( (item: any) => item.parent_id == undefined) as TreeNode[]            
+        }, 
+        {
+            immediate: true
+        }
+    );
 
     const emit = defineEmits(['complete', 'next', 'start', 'report']);
 
@@ -84,13 +114,9 @@
             </template>
             <template v-else>
                 <va-form>
-                    <va-select label="Темы" multiple 
-                        :options="props.tags" 
-                        text-by="desciption" 
-                        value-by="id" 
-                        v-model="task.tags" 
-                        :max-visible-options="1" 
-                        style="display: flex"/>
+                    <label class="va-input-label" style="color: var(--va-primary)">Список тем</label>
+                    <va-tree-view selectable expand-all :nodes="taskTopicNodes" v-model:checked="task.tags"></va-tree-view>
+
                     <div class="row" style="min-height: 2vh;"></div>
                     <va-slider label="Количество слов" pins track-label-visible :min="20" :max="50" :step="10" v-model="task.count"></va-slider>
                     <div class="row" style="min-height: 2vh;"></div>

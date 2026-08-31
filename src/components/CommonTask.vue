@@ -44,8 +44,18 @@
                     tagsObject[item.parent_id].children.push(item)
                 }
             });
-            taskTopicNodes.value = Object.values(tagsObject).filter( (item: any) => item.parent_id == undefined) as TreeNode[]            
-        }, 
+            const topics = Object.values(tagsObject).filter( (item: any) => item.parent_id == undefined) as any[]
+            topics.sort((a, b) => a.label.localeCompare(b.label)  )
+
+            const sortChildren = (topic: any) => {
+                topic.children.sort( (a :any, b: any) => a.label.localeCompare(b.label) );
+                
+                (topic.children as any[]).forEach( (child) => sortChildren(child) );
+            }
+            topics.forEach( topic => sortChildren(topic))
+
+            taskTopicNodes.value = topics
+        },
         {
             immediate: true
         }
@@ -100,7 +110,7 @@
                     <div class="row" style="min-height: 1vh;"></div>
                 </template>
                 <div class="row">
-                    
+
                     <va-button preset="secondary" @click="showRules = true" :disabled="!props.rules || props.rules.length == 0 || showRules">Правило</va-button>
                     <va-spacer/>
                     <va-button :disabled="inProcess" class="primary" icon-right="arrow_forward" v-on:click="emit('next')">Дальше</va-button>

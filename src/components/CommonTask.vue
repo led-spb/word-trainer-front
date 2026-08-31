@@ -49,7 +49,7 @@
 
             const sortChildren = (topic: any) => {
                 topic.children.sort( (a :any, b: any) => a.label.localeCompare(b.label) );
-                
+
                 (topic.children as any[]).forEach( (child) => sortChildren(child) );
             }
             topics.forEach( topic => sortChildren(topic))
@@ -136,7 +136,7 @@
                 <va-divider/>
                 <div class="row">
                     <va-spacer/>
-                    <va-button class="primary" icon-right="arrow_forward" v-on:click="emit('start')">Начать</va-button>
+                    <va-button class="primary" icon-right="arrow_forward" v-on:click="emit('start')" :disabled="task.tags.length == 0">Начать</va-button>
                     <va-spacer/>
                 </div>
             </template>

@@ -6,7 +6,7 @@ import { UsersApiService } from '@/api/users'
 import { StatisticsApiService } from '@/api/statistics'
 import { RatingApiService, type UserRating } from '@/api/rating'
 import type { User, UserProgress } from '@/api/users'
-import type { UserDayStatistics, UserWordStatistics } from '@/api/statistics'
+import type { UserDayStatistics, UserWordStatistics, TopicStatistics } from '@/api/statistics'
 
 
 export const useUsersStore = defineStore('users', () => {
@@ -15,6 +15,7 @@ export const useUsersStore = defineStore('users', () => {
     const progress = ref<UserProgress>()
     const troubles = ref<UserWordStatistics[]>()
     const rating = ref<UserRating[]>()
+    const topicsProgress = ref<TopicStatistics[]>()
 
     const userApiService = new UsersApiService(axiosInstance)
     const ratingApiService = new RatingApiService(axiosInstance)
@@ -43,6 +44,10 @@ export const useUsersStore = defineStore('users', () => {
 
         statisticsApiService.getUserTrobles().then( (data: UserWordStatistics[]) => {
             troubles.value = data
+        })
+
+        statisticsApiService.getTopicStatistics().then( (data: TopicStatistics[]) => {
+            topicsProgress.value = data
         })
     }
 
@@ -83,5 +88,5 @@ export const useUsersStore = defineStore('users', () => {
         }
     })
 
-    return { user, progress, troubles, statistics, aggregateStat: dailyStats, rating, setUserInfo, loadUserInfo, loadUserProgress, loadUserStat, loadUserRating}
+    return { user, progress, troubles, topicsProgress, statistics, aggregateStat: dailyStats, rating, setUserInfo, loadUserInfo, loadUserProgress, loadUserStat, loadUserRating}
 })

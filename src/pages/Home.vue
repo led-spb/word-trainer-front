@@ -4,6 +4,11 @@
 
     import TaskStatistic from '@/components/TaskStatistic.vue';
     import Word from '@/components/Word.vue';
+    import ProgressChart from '@/components/ProgressChart.vue';
+    import { useColors } from 'vuestic-ui';
+
+
+    const colors = useColors()
 
     const tabs = ref([
         {label: 'Сегодня', value: 0},
@@ -58,6 +63,12 @@
             <va-card-content>
                 <va-button-toggle v-model="currentStatOffset" grow color="backgroundSecondary" toggle-color="primary" :options="tabs" size="small"></va-button-toggle>
                 <task-statistic v-model="stat"/>
+                <progress-chart 
+                    :data="userStore.topicsProgress"
+                    :text-color="colors.setHSLAColor(colors.colors.textPrimary, {a: 0.6})"
+                    :value-color="colors.colors.textPrimary"
+                    :fill-color="colors.setHSLAColor(colors.colors.primary, {a: 0.4})"
+                ></progress-chart>
             </va-card-content>
         </va-card>
 

@@ -1,4 +1,4 @@
-import type { UserDayStatistics, UserWordStatistics } from './statistics-api.models'
+import type { TopicStatistics, UserDayStatistics, UserWordStatistics } from './statistics-api.models'
 import type { AxiosInstance } from "axios"
 
 
@@ -32,6 +32,11 @@ export class StatisticsApiService {
     async getTagsStat(): Promise<any> {
         const response = await this.axiosInstance.get('user/stat/tags')
 
+        return response.data
+    }
+
+    async getTopicStatistics(): Promise<TopicStatistics[]>{
+        const response = await this.axiosInstance.get<TopicStatistics[]>('user/stat/topics')
         return response.data
     }
 }

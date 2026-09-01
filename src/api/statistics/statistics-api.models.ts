@@ -14,3 +14,8 @@ export interface UserDayStatistics extends CommonStat{
 export interface UserWordStatistics extends CommonStat {
     word: Word
 }
+
+export interface TopicStatistics extends CommonStat {
+    id: number
+    description: string
+}

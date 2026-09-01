@@ -106,6 +106,12 @@
         return filtered
     }
 
+    const sortVariants = (variants: string[]): string[] => {
+        if( variants.includes("") || variants.includes("_"))
+            return [...variants.filter( (item) => item != "_" && item != "" ),"_"]
+        return variants
+    }
+
     const getSpellingRight = (spelling: any) => {
         if( !model.value ) return
         return model.value.fullword.slice( spelling.position, spelling.position+spelling.length )
@@ -164,7 +170,7 @@
                             <h2 class="letter">{{ encodeSpaces(item.selected) }}</h2>
                         </div>
                         <div v-else class="spelling spelling-variant" :class="item.id == currentSpelling?.id ? 'spelling-active' : ''">
-                            <h2 class="variant" v-for="variant in displayVariants(item.variants)">{{ variant }}</h2>
+                            <h2 class="variant" v-for="(variant, index) in displayVariants(item.variants)"><span v-if="index">|</span>{{ variant }}</h2>
                         </div>
                     </template>
                 </template>
@@ -173,7 +179,7 @@
         </div>
         <div style="min-height: 1vh;"></div>
         <div class="row justify-space-evenly" v-if="currentSpelling && currentSpelling.variants">
-            <va-button v-for="variant in currentSpelling?.variants" @click="currentSpelling.selected = mapVariant(variant)">{{ variant }}</va-button>
+            <va-button v-for="variant in sortVariants(currentSpelling.variants)" @click="currentSpelling.selected = mapVariant(variant)">{{ variant }}</va-button>
         </div>
     </div>
 </template>

@@ -22,7 +22,7 @@
 
     const chartData = computed(() => {
         return {
-            labels: props.data.map( (topic) => topic.description),
+            labels: props.data.map( (topic) => topic.description.split(' ')),
             datasets: [{
                 data: props.data.map( (topic) => Math.ceil(topic.percent * 1000)/10),
                 fill: true,

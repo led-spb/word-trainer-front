@@ -1,27 +1,17 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { rulesApi } from '@/api/rules'
+import { rulesApi, type Rule } from '@/api/rules'
 
 
 export const useRuleStore = defineStore('rules', () => {
-    const rules = ref<any[]>([])
+    const rules = ref<Rule[]>([])
 
-    const ruleById = computed(() => {
-        return (ruleId :number) => {
-            const rule = rules.value.find( (item: any) => item.id == ruleId )
-            if( rule ){
-                return rule;
-            }
-
-            rulesApi.getRuleById(ruleId).then( (data: any) => {
-                rules.value.push(data);
-            })
+    const loadRule = async (ruleId: number) => {
+        const rule = rules.value.find( item => item.id == ruleId)
+        if( rule == undefined ){
+            rules.value.push( await rulesApi.getRuleById(ruleId) )
         }
-    })
-
-    function setRules(data: any[]){
-        rules.value = data
     }
 
-    return { ruleById, rules, setRules }
+    return { rules, loadRule }
 })

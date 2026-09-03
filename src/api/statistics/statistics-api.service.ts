@@ -29,12 +29,6 @@ export class StatisticsApiService {
         return null
     }
 
-    async getTagsStat(): Promise<any> {
-        const response = await this.axiosInstance.get('user/stat/tags')
-
-        return response.data
-    }
-
     async getTopicStatistics(): Promise<TopicStatistics[]>{
         const response = await this.axiosInstance.get<TopicStatistics[]>('user/stat/topics')
         return response.data

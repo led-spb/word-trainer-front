@@ -1,50 +1,63 @@
 <script setup lang="ts">
     import { ref, computed, watch } from 'vue';
     import TaskStatistic from './TaskStatistic.vue';
-    import Rule from './Rule.vue';
     import type { Word } from '@/api/words';
     import type { TreeNode } from 'vuestic-ui';
+    import type { Topic } from '@/api/topics.ts';
+    import type { Rule as IRule } from '@/api/rules.ts';
+    import Rule from '@/components/Rule.vue';
 
     const word = defineModel<Word>('word', {})
-    const statistics = defineModel( 'statistics',
-        {type: Object, default: {success: 0, failed: 0}}
-    );
-    const task = defineModel('task',
-        {
-            type: Object,
-            default: {
-                count: 20,
-                errors: 30,
-                level: 10,
-                tags: Array<any>
-            }
-        }
-    );
+
+
+    const statistics = defineModel<{
+        success: number,
+        failed: number
+    }>('statistics', {
+        default: () => ({success: 0, failed: 0})
+    });
+
+    const task = defineModel<{
+        count: number,
+        errors: number,
+        level: number,
+        topics: Topic[]
+    }>('task', { 
+        default: () => ({ count: 0, errors: 0, level: 10, topics: [] })
+    });
+
     const showRules = ref(false);
 
-    const props = defineProps({
-        title: { type: String, default: "" },
-        tags: { type: Array<any>, default: [] },
-        rules: { type: Array<any>, default: [] },
-        current: { type: Number, default: 0 },
-        total: {type: Number, default: 0 },
-    })
+    const props = withDefaults(
+        defineProps<{
+            title: string,
+            topics: Topic[],
+            rules: IRule[],
+            current: number,
+            total: number,
+        }>(), {
+            title: "",
+            current: 0,
+            total: 0,
+            topics: () => [],
+            rules: () => [],
+        }
+    )
 
     const taskTopicNodes = ref<TreeNode[]>([])
 
-    watch( () => props.tags, (tags) => {
-            //
-            const tagsObject :any = {};
-            tags.forEach(element => {
-                tagsObject[element.id] = { id: element.id, parent_id: element.parent_id, label: element.description, children: [], expanded: false }
+    watch( () => props.topics, (values) => {
+            const topicsMap :any = {};
+            values.forEach(element => {
+                topicsMap[element.id] = { id: element.id, parent_id: element.parent_id, label: element.description, children: [], expanded: false }
             });
 
-            Object.values(tagsObject).forEach((item :any) => {
-                if( item.parent_id != undefined && tagsObject[item.parent_id] != undefined ){
-                    tagsObject[item.parent_id].children.push(item)
+            Object.values(topicsMap).forEach((item :any) => {
+                if( item.parent_id != undefined && topicsMap[item.parent_id] != undefined ){
+                    topicsMap[item.parent_id].children.push(item)
                 }
             });
-            const topics = Object.values(tagsObject).filter( (item: any) => item.parent_id == undefined) as any[]
+            const topics = Object.values(topicsMap).filter( (item: any) => item.parent_id == undefined) as any[]
             topics.sort((a, b) => a.label.localeCompare(b.label)  )
 
             const sortChildren = (topic: any) => {
@@ -125,7 +138,7 @@
             <template v-else>
                 <va-form>
                     <label class="va-input-label" style="color: var(--va-primary)">Список тем</label>
-                    <va-tree-view selectable expand-all :nodes="taskTopicNodes" v-model:checked="task.tags"></va-tree-view>
+                    <va-tree-view selectable expand-all :nodes="taskTopicNodes" v-model:checked="task.topics"></va-tree-view>
 
                     <div class="row" style="min-height: 2vh;"></div>
                     <va-slider label="Количество слов" pins track-label-visible :min="20" :max="50" :step="10" v-model="task.count"></va-slider>
@@ -136,7 +149,7 @@
                 <va-divider/>
                 <div class="row">
                     <va-spacer/>
-                    <va-button class="primary" icon-right="arrow_forward" v-on:click="emit('start')" :disabled="task.tags.length == 0">Начать</va-button>
+                    <va-button class="primary" icon-right="arrow_forward" v-on:click="emit('start')" :disabled="task.topics.length == 0">Начать</va-button>
                     <va-spacer/>
                 </div>
             </template>
@@ -146,7 +159,7 @@
 </template>
 
 <style>
-.progress {
-    --va-progress-bar-transition: 0.5s;
-}
+    .progress {
+        --va-progress-bar-transition: 0.5s;
+    }
 </style>

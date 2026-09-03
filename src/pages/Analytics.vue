@@ -1,15 +1,15 @@
 <script setup lang="ts">
     import { ref, onMounted, computed } from 'vue';
     import { useUsersStore } from '@/stores';
-    import { StatisticsApiService } from '@/api/statistics';
+    import { StatisticsApiService, type TopicStatistics } from '@/api/statistics';
     import { axiosInstance } from '@/api/config';
 
     const statisticsApiService = new StatisticsApiService(axiosInstance);
     const userStore = useUsersStore()
-    const tagsStatistcs = ref<any[]>()
+    const tagsStatistcs = ref<TopicStatistics[]>()
 
     onMounted(() => {
-        statisticsApiService.getTagsStat().then( data => {
+        statisticsApiService.getTopicStatistics().then( data => {
             tagsStatistcs.value = data
         })
     })
@@ -26,7 +26,7 @@
 </script>
 
 <template>
-    <template v-for="info in tagsStatistcs">
+    <!-- <template v-for="info in tagsStatistcs">
     <va-card class="item" v-if="info.prev && info.prev.total != info.total">
         <va-card-title>{{ info.tag.title }}</va-card-title>
         <va-card-content>
@@ -54,5 +54,5 @@
             </va-list>
         </va-card-content>
     </va-card>
-    </template>
+    </template> -->
 </template>

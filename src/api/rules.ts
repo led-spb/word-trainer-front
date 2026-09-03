@@ -17,7 +17,7 @@ const rulesApi = {
         return response.data
     },
 
-    async getRules(title :string|null = null, page :number = 1, limit :number = 10): Promise<Rule[]>{
+    async getRules(title :string|null = null, page :number = 1, limit :number = 10) {
         const response = await axiosInstance({
             method: 'get',
             url: 'rules',

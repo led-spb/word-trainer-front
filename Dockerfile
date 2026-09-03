@@ -2,7 +2,7 @@ FROM node:25-slim as build
 
 WORKDIR /app
 COPY ./package.json ./package-lock.json /app/
-RUN npm install 
+RUN npm ci
 COPY . /app/
 RUN npm run build && npm cache clean --force
 

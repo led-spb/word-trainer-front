@@ -46,7 +46,7 @@
         isLoading.value = true
         usersApiService.updateUserInfo(userData.value)
             .then((data: User) => {
-                userStore.setUserInfo(data)
+                userStore.user = data
                 userData.value = <User>{}
             }
         ).finally( () => {
@@ -115,7 +115,7 @@
             (blob :Blob|null) => {
                 if( !!blob ){
                     usersApiService.updateUserAvatar(blob).then( user => {
-                        userStore.setUserInfo(user)
+                        userStore.user = user
                     })
                 }
             },

@@ -15,6 +15,7 @@ export class StatisticsApiService {
 
         return response.data.map( (value: any) => {
             value.recorded_at = new Date(value.recorded_at)
+            value.recorded_at.setHours(0, 0, 0, 0)
             return value
         } )
     }

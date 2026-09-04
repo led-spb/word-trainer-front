@@ -1,32 +1,33 @@
 <script setup lang="ts">
     import { computed } from 'vue';
 
-    import {Radar} from 'vue-chartjs';
-    import {Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, RadialLinearScale, Filler} from 'chart.js'
+    import {Bar} from 'vue-chartjs';
+    import {Chart as ChartJS, Title, Tooltip, Legend, BarElement, PointElement, CategoryScale, LinearScale, Filler} from 'chart.js'
     import ChartDataLabels from 'chartjs-plugin-datalabels';
+    import type { UserDayStatistics } from '@/api/statistics';
 
-    ChartJS.register(Title, Tooltip, Legend, Filler, ChartDataLabels, LineElement, RadialLinearScale, PointElement )
+    ChartJS.register(Title, Tooltip, Legend, Filler, ChartDataLabels, BarElement, CategoryScale, LinearScale )
 
-    interface TopicData {
-        description: string
-        percent: number
-    }
-
+ 
     const props = defineProps({
-        data: {type: Array<TopicData>, default: [], },
+        data: {type: Array<UserDayStatistics>, default: []},
         fillColor: {type: String, default: 'rgba(255, 99, 132, 0.2)' },
         textColor: {type: String, default: '#333' },
         valueColor: {type: String, default: '#666' },
         textSize: {type: Number, default: 12},
     })
 
+    const dateLabel = (date: Date): string => {
+        return String(date.getDate()).padStart(2, '0')+'.'+String(date.getMonth()+1).padStart(2, '0')
+    }
+
     const chartData = computed(() => {
         return {
-            labels: props.data.map( (topic) => topic.description.split(' ')),
+            labels: props.data.map( item => dateLabel(item.recorded_at) ),
             datasets: [{
-                data: props.data.map( (topic) => Math.ceil(topic.percent * 1000)/10),
+                data: props.data.map( item => item.total ),
                 fill: true,
-                backgroundColor: props.fillColor,
+                backgroundColor: props.fillColor,                
             }]
         }
     })
@@ -35,7 +36,7 @@
         return {
             clip: 0,
             responsive: true,
-            aspectRatio: 1.2,
+            aspectRatio: 2.5,
             plugins: {
                 legend: {display: false},
                 tooltip: {enabled: false},
@@ -49,22 +50,16 @@
                 }
             },
             scales: {
-                r: {
-                    grid: {
-                        color: '#666'
-                    },
-                    pointLabels: {
-                        color: props.textColor,
-                        font: {
-                            size: props.textSize,
-                            weight: 'bold' as const,
-                        },
-                    },
-                    suggestedMin: 0,
-                    suggestedMax: 100,
+                y: {
+                    beginAtZero: true,
                     ticks: {
-                        display: false
-                    }
+                        display: false,
+                    },
+                },
+                x: {
+                    ticks: {
+                        color: props.valueColor
+                    },
                 },
             }
         }
@@ -72,5 +67,5 @@
 </script>
 
 <template>
-    <Radar :data="chartData" :options="chartOptions" v-if="props.data.length > 0"></Radar>
+    <Bar :data="chartData" :options="chartOptions" v-if="props.data.length > 0"></Bar>
 </template>

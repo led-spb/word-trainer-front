@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { axiosInstance } from '@/api/config'
 
@@ -15,15 +15,20 @@ export const useUsersStore = defineStore('users', () => {
     const progress = ref<UserProgress>()
     const troubles = ref<UserWordStatistics[]>()
     const rating = ref<UserRating[]>()
-    const topicsProgress = ref<TopicStatistics[]>()
+    const topicStatistic = ref<TopicStatistics[]>()
 
     const userApiService = new UsersApiService(axiosInstance)
     const ratingApiService = new RatingApiService(axiosInstance)
     const statisticsApiService = new StatisticsApiService(axiosInstance)
 
-    const setUserInfo = (info: User) => {
-        user.value = info
-    }
+    // reload propgress and statistic on user changed
+    watch(user, (value) => {
+        if(value){
+            loadUserProgress()
+            loadUserStat()
+        }
+    })
+
     const loadUserInfo = () => {
         userApiService.getCurrentUser().then( (value: User) => {
             user.value = value
@@ -45,10 +50,11 @@ export const useUsersStore = defineStore('users', () => {
         statisticsApiService.getUserTrobles().then( (data: UserWordStatistics[]) => {
             troubles.value = data
         })
-
+/*        
         statisticsApiService.getTopicStatistics().then( (data: TopicStatistics[]) => {
-            topicsProgress.value = data
+            topicStatistic.value = data
         })
+*/
     }
 
     function loadUserRating(){
@@ -57,36 +63,5 @@ export const useUsersStore = defineStore('users', () => {
         })
     }
 
-    function accumulateStatistics(fromDate :Date){
-        const days = statistics.value?.filter( (item: any) => {
-             return item.recorded_at >= fromDate
-        })
-        return days?.reduce(
-            (acc: any, item: any) => {
-                acc.success += item.success
-                acc.failed += item.failed
-
-                return acc
-            },
-            {
-                success: 0,
-                failed: 0,
-            }
-        )
-    }
-
-    const dailyStats = computed(() => {
-        return (offset :number) => {
-            const fromDate = new Date()
-            fromDate.setHours(0)
-            fromDate.setMinutes(0)
-            fromDate.setSeconds(0)
-            fromDate.setMilliseconds(0)
-
-            fromDate.setDate(fromDate.getDate() - offset)
-            return accumulateStatistics(fromDate)
-        }
-    })
-
-    return { user, progress, troubles, topicsProgress, statistics, aggregateStat: dailyStats, rating, setUserInfo, loadUserInfo, loadUserProgress, loadUserStat, loadUserRating}
+    return { user, progress, troubles, statistics, topicStatistic, rating, loadUserInfo, loadUserProgress, loadUserStat, loadUserRating}
 })

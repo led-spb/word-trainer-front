@@ -9,15 +9,18 @@ export const useStatisticsStore = defineStore('statistics', () => {
 
     const success = ref<Word[]>([])
     const failed = ref<Word[]>([])
+    const isChanged = ref<boolean>(true)
 
     const storeSuccess = (word :Word) => {
         success.value.push(word)
         statisticsApiService.updateUserStat({success : [word.id]})
+        isChanged.value = true
     }
 
     const storeFailed = (word :Word) => {
         failed.value.push(word)
         statisticsApiService.updateUserStat({failed : [word.id]})
+        isChanged.value = true
     }
 
     const clear = () => {
@@ -32,5 +35,5 @@ export const useStatisticsStore = defineStore('statistics', () => {
         }
     })
 
-    return { success, failed, statistic, storeSuccess, storeFailed, clear }
+    return { success, failed, statistic, isChanged, storeSuccess, storeFailed, clear }
 })

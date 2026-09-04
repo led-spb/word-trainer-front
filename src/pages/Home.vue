@@ -1,33 +1,85 @@
 <script setup lang="ts">
-    import { ref, onMounted, computed } from 'vue';
-    import { useUsersStore } from '@/stores';
+    import { ref, onMounted, computed, watch } from 'vue';
+    import { useUsersStore, useStatisticsStore } from '@/stores';
 
     import TaskStatistic from '@/components/TaskStatistic.vue';
     import Word from '@/components/Word.vue';
     import ProgressChart from '@/components/ProgressChart.vue';
+    import TopicChart from '@/components/TopicChart.vue';
     import { useColors } from 'vuestic-ui';
+    import type { Statistic, UserDayStatistics } from '@/api/statistics';
 
 
     const colors = useColors()
 
+    const currentStatOffset = ref(0)
+
     const tabs = ref([
-        {label: 'Сегодня', value: 0},
-        {label: 'Неделя', value: 7},
-        {label: 'Месяц', value: 30},
-        {label: 'Всего', value: 1000},
+        {label: 'Сегодня', value: 0, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
+        {label: 'Неделя', value: 6, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
+        {label: 'Месяц', value: 29, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
+        {label: 'Всего', value: 1000, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
     ])
     const userStore = useUsersStore()
-    const stat = computed(() => {
-        return userStore.aggregateStat(currentStatOffset.value || 0)
+    const statStore = useStatisticsStore()
+
+    const dayOffsetFromNow = (offset: number): Date => {
+        const now = new Date()
+        now.setHours(0, 0, 0, 0)
+
+        const result = new Date()
+        result.setTime(now.getTime() + offset * 24*60*60*1000)
+        return result
+    }
+
+    watch(() => userStore.statistics, (statistcs) => {
+        if( statistcs == undefined )
+            return
+
+        tabs.value.forEach( item => {
+            const offsetDate = dayOffsetFromNow(-item.value)
+            const values = statistcs.filter((value: UserDayStatistics) => value.recorded_at >= offsetDate)
+            const total = values.reduce(
+                (acc: any, item: any) => {
+                    acc.success += item.success;
+                    acc.failed += item.failed;
+                    acc.total += item.total;
+                    return acc
+                },
+                {success: 0, failed: 0, total: 0}
+            );
+            item.stat = {...total, percent: total.total != 0 ? total.success/total.total : 0}
+        })
+    }, {immediate: true})
+
+    const userStatistic = computed( () => {
+        return tabs.value.find( (item) => item.value == currentStatOffset.value )?.stat
     })
+    const weeklyStatistic = computed<UserDayStatistics[]>( () => {
+        if(userStore.statistics == undefined)
+            return []
+
+        const result = []
+        for(let offset=6; offset>=0; offset-- ){
+            const currentDate = dayOffsetFromNow(-offset)
+            const value = userStore.statistics.find(
+                item => item.recorded_at.getTime() == currentDate.getTime()
+            ) || {recorded_at: currentDate, total: 0, success: 0, failed: 0, percent: 0}
+            result.push(value)
+        }
+        return result
+    })
+
     const topFailed = computed( () => {
         return userStore.troubles
     })
-    const currentStatOffset = ref(0)
 
     onMounted(() => {
-        userStore.loadUserProgress()
-        userStore.loadUserStat()
+        if( statStore.isChanged ){
+            userStore.loadUserProgress()
+            userStore.loadUserStat()
+            statStore.isChanged = false
+        }
     })
 
     const percent = (current :any, total :any) => total > 0 ? Math.ceil(current/total * 100) : 0
@@ -48,6 +100,7 @@
                     <va-list-item-section icon><va-chip color="success" size="small">{{ userStore.progress?.series }} дней</va-chip></va-list-item-section>
                 </va-list-item>
             </va-card-content>
+<!--
             <va-card-title><va-icon name="hotel_class" class="card-icon"/>Всего изучено</va-card-title>
             <va-card-content>
                 <va-progress-bar :model-value="percent(userStore.progress?.overall?.learned, userStore.progress?.overall?.total)" showPercent></va-progress-bar>
@@ -56,23 +109,30 @@
                     <va-list-item-section icon>{{ userStore.progress?.overall?.learned }} / {{ userStore.progress?.overall?.total }}</va-list-item-section>
                 </va-list-item>
             </va-card-content>
+-->
+            <va-card-content>
+                <progress-chart :data="weeklyStatistic" :fill-color="colors.setHSLAColor(colors.colors.primary, {a: 1})" :value-color="colors.colors.textPrimary"/>
+            </va-card-content>
         </va-card>
 
         <va-card class="item">
             <va-card-title><va-icon name="bar_chart" class="card-icon"/>Статистика</va-card-title>
             <va-card-content>
                 <va-button-toggle v-model="currentStatOffset" grow color="backgroundSecondary" toggle-color="primary" :options="tabs" size="small"></va-button-toggle>
-                <task-statistic v-model="stat"/>
-                <progress-chart 
+
+                <task-statistic v-model="userStatistic"/>
+                <!--
+                <progress-chart
                     :data="userStore.topicsProgress"
                     :text-color="colors.setHSLAColor(colors.colors.textPrimary, {a: 0.6})"
                     :value-color="colors.colors.textPrimary"
                     :fill-color="colors.setHSLAColor(colors.colors.primary, {a: 0.4})"
                 ></progress-chart>
+                -->
             </va-card-content>
         </va-card>
 
-        <va-card class="item"> 
+        <va-card class="item">
             <va-card-title><va-icon name="tour" class="card-icon"/>Топ ошибок</va-card-title>
             <va-card-content>
                 <div class="va-table-responsive">
@@ -90,8 +150,8 @@
                             </tr>
                         </tbody>
                         </table>
-                </div>   
-            </va-card-content>                 
+                </div>
+            </va-card-content>
         </va-card>
 
 </template>

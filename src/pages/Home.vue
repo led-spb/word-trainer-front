@@ -7,7 +7,7 @@
     import ProgressChart from '@/components/ProgressChart.vue';
     import TopicChart from '@/components/TopicChart.vue';
     import { useColors } from 'vuestic-ui';
-    import type { Statistic, UserDayStatistics } from '@/api/statistics';
+    import type { Statistic, TopicStatistics, UserDayStatistics } from '@/api/statistics';
 
 
     const colors = useColors()
@@ -15,10 +15,10 @@
     const currentStatOffset = ref(0)
 
     const tabs = ref([
-        {label: 'Сегодня', value: 0, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
-        {label: 'Неделя', value: 6, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
-        {label: 'Месяц', value: 29, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
-        {label: 'Всего', value: 1000, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0} },
+        {label: 'Сегодня', value: 0, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0}, topics: <TopicStatistics[]>[] },
+        {label: 'Неделя', value: 6, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0}, topics: <TopicStatistics[]>[] },
+        {label: 'Месяц', value: 29, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0}, topics: <TopicStatistics[]>[] },
+        // {label: 'Всего', value: 1000, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0}, topics: <TopicStatistics[]>[] },
     ])
     const userStore = useUsersStore()
     const statStore = useStatisticsStore()
@@ -26,19 +26,19 @@
     const dayOffsetFromNow = (offset: number): Date => {
         const now = new Date()
         now.setHours(0, 0, 0, 0)
-
         const result = new Date()
         result.setTime(now.getTime() + offset * 24*60*60*1000)
         return result
     }
 
-    watch(() => userStore.statistics, (statistcs) => {
-        if( statistcs == undefined )
+    // aggregate statistics
+    watch(() => userStore.statistics, (statistic) => {
+        if( statistic == undefined )
             return
 
         tabs.value.forEach( item => {
             const offsetDate = dayOffsetFromNow(-item.value)
-            const values = statistcs.filter((value: UserDayStatistics) => value.recorded_at >= offsetDate)
+            const values = statistic.filter((value: UserDayStatistics) => value.recorded_at >= offsetDate)
             const total = values.reduce(
                 (acc: any, item: any) => {
                     acc.success += item.success;
@@ -50,15 +50,46 @@
             );
             item.stat = {...total, percent: total.total != 0 ? total.success/total.total : 0}
         })
-    }, {immediate: true})
+    }, {immediate: true});
+
+    // aggregate topic statistics
+    watch(() => userStore.topicStatistic, (statistic) => {
+        if( statistic == undefined )
+            return
+
+        tabs.value.forEach( item => {
+            const offsetDate = dayOffsetFromNow(-item.value)
+
+            const values = statistic.filter((value: TopicStatistics) => value.recorded_at >= offsetDate)
+
+            const groupped: Map<string, TopicStatistics> = values.reduce((acc, current) => {
+                const group = acc.get(current.description) || { 
+                    recorded_at: offsetDate, 
+                    description: current.description, 
+                    success: 0, failed: 0, total: 0, percent: 0
+                };
+                group.success += current.success;
+                group.failed += current.failed;
+                group.total += current.total;
+
+                acc.set(current.description, group)
+                return acc;
+            }, new Map<string, TopicStatistics>());
+
+            item.topics = [...groupped.values()].map( (value: TopicStatistics) => ({...value, percent: value.total > 0 ? value.success/value.total : 0 }));
+        })
+    }, {immediate: true});
+
 
     const userStatistic = computed( () => {
         return tabs.value.find( (item) => item.value == currentStatOffset.value )?.stat
     })
+    const userTopicStatistic = computed( () =>{
+        return tabs.value.find( item => item.value == currentStatOffset.value )?.topics
+    })
     const weeklyStatistic = computed<UserDayStatistics[]>( () => {
         if(userStore.statistics == undefined)
             return []
-
         const result = []
         for(let offset=6; offset>=0; offset-- ){
             const currentDate = dayOffsetFromNow(-offset)
@@ -121,14 +152,12 @@
                 <va-button-toggle v-model="currentStatOffset" grow color="backgroundSecondary" toggle-color="primary" :options="tabs" size="small"></va-button-toggle>
 
                 <task-statistic v-model="userStatistic"/>
-                <!--
-                <progress-chart
-                    :data="userStore.topicsProgress"
+                <topic-chart
+                    :data="userTopicStatistic"
                     :text-color="colors.setHSLAColor(colors.colors.textPrimary, {a: 0.6})"
                     :value-color="colors.colors.textPrimary"
                     :fill-color="colors.setHSLAColor(colors.colors.primary, {a: 0.4})"
-                ></progress-chart>
-                -->
+                />
             </va-card-content>
         </va-card>
 

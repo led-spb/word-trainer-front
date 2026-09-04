@@ -15,7 +15,7 @@ export interface UserWordStatistics extends Statistic {
     word: Word
 }
 
-export interface TopicStatistics extends Statistic {
+export interface TopicStatistics extends UserDayStatistics {
     id?: number
     description: string
 }

@@ -99,7 +99,7 @@
         <va-card-content>
 
             <template v-if="!word && (statistics.success+statistics.failed)" >
-                <task-statistic v-model="statistics"/>
+                <task-statistic :success="statistics.success" :failed="statistics.failed"/>
                 <va-divider/>
             </template>
             <div class="row" style="min-height: 1vh;"></div>

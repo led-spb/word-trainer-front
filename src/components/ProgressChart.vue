@@ -8,10 +8,12 @@
 
     ChartJS.register(Title, Tooltip, Legend, Filler, ChartDataLabels, BarElement, CategoryScale, LinearScale )
 
- 
+
     const props = defineProps({
         data: {type: Array<UserDayStatistics>, default: []},
+        targetValue: {type: Number, default: 100},
         fillColor: {type: String, default: 'rgba(255, 99, 132, 0.2)' },
+        successColor: {type: String, default: 'green'},
         textColor: {type: String, default: '#333' },
         valueColor: {type: String, default: '#666' },
         textSize: {type: Number, default: 12},
@@ -27,7 +29,7 @@
             datasets: [{
                 data: props.data.map( item => item.total ),
                 fill: true,
-                backgroundColor: props.fillColor,                
+                backgroundColor: (context: any) => context.raw >= props.targetValue ? props.successColor : props.fillColor,
             }]
         }
     })

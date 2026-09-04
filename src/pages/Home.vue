@@ -76,16 +76,21 @@
                 return acc;
             }, new Map<string, TopicStatistics>());
 
-            item.topics = [...groupped.values()].map( (value: TopicStatistics) => ({...value, percent: value.total > 0 ? value.success/value.total : 0 }));
+            const result = [...groupped.values()].map( (value: TopicStatistics) => ({...value, percent: value.total > 0 ? value.success/value.total : 0 }))
+            result.sort((a, b) => a.description.localeCompare(b.description))
+
+            item.topics = result;
         })
     }, {immediate: true});
 
 
     const userStatistic = computed( () => {
-        return tabs.value.find( (item) => item.value == currentStatOffset.value )?.stat
+        const tab = tabs.value.find( (item) => item.value == currentStatOffset.value )
+        return tab?.stat || {success: 0, failed: 0, total: 0, percent: 0};
     })
-    const userTopicStatistic = computed( () =>{
-        return tabs.value.find( item => item.value == currentStatOffset.value )?.topics
+    const userTopicStatistic = computed( () => {
+        const tab = tabs.value.find( (item) => item.value == currentStatOffset.value )
+        return tab?.topics || [];
     })
     const weeklyStatistic = computed<UserDayStatistics[]>( () => {
         if(userStore.statistics == undefined)
@@ -142,7 +147,13 @@
             </va-card-content>
 -->
             <va-card-content>
-                <progress-chart :data="weeklyStatistic" :fill-color="colors.setHSLAColor(colors.colors.primary, {a: 1})" :value-color="colors.colors.textPrimary"/>
+                <progress-chart 
+                    :data="weeklyStatistic"
+                    :fill-color="colors.colors.secondary"
+                    :success-color="colors.colors.success"
+                    :value-color="colors.colors.textPrimary"
+                    :target-value="userStore.user?.dailyGoal"
+                />
             </va-card-content>
         </va-card>
 
@@ -151,7 +162,7 @@
             <va-card-content>
                 <va-button-toggle v-model="currentStatOffset" grow color="backgroundSecondary" toggle-color="primary" :options="tabs" size="small"></va-button-toggle>
 
-                <task-statistic v-model="userStatistic"/>
+                <task-statistic :success="userStatistic.success" :failed="userStatistic.failed"/>
                 <topic-chart
                     :data="userTopicStatistic"
                     :text-color="colors.setHSLAColor(colors.colors.textPrimary, {a: 0.6})"

@@ -16,8 +16,8 @@ export interface Word {
     selected: number
     result: boolean
 
-    rules: any[]
-    tags: any[]
+    rules: number[]
+    tags: number[]
 
     accents: Accent[]
     spellings: Spelling[]

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { ref, computed, onMounted, watch } from 'vue';
-    import { useAuthStore, useUsersStore, useStatisticsStore } from '@/stores';
+    import { useAuthStore, useUsersStore } from '@/stores';
     import { useRouter, useRoute} from 'vue-router'
     import { useColors, useToast } from 'vuestic-ui';
     import { axiosInstance } from '@/api/config';
@@ -8,7 +8,6 @@
     const showSidebar = ref(false)
     const authStore = useAuthStore()
     const userStore = useUsersStore()
-    const statisticsStore = useStatisticsStore()
 
     const router = useRouter()
     const colorManager = useColors()
@@ -51,7 +50,6 @@
         () => authStore.accessToken, 
         (value) => {
             userStore.loadUserInfo()
-            statisticsStore.isChanged = false
         },
         {
             immediate: true
@@ -78,9 +76,6 @@
                 return Promise.reject(error)
             }
         )
-        // if( authStore.accessToken ){
-        //     userStore.loadUserInfo()
-        // }
     })
 </script>
 

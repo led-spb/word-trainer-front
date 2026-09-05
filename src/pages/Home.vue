@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { ref, onMounted, computed, watch } from 'vue';
-    import { useUsersStore, useStatisticsStore } from '@/stores';
+    import { useUsersStore } from '@/stores';
 
     import TaskStatistic from '@/components/TaskStatistic.vue';
     import Word from '@/components/Word.vue';
@@ -21,7 +21,6 @@
         // {label: 'Всего', value: 1000, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0}, topics: <TopicStatistics[]>[] },
     ])
     const userStore = useUsersStore()
-    const statStore = useStatisticsStore()
 
     const dayOffsetFromNow = (offset: number): Date => {
         const now = new Date()
@@ -111,11 +110,7 @@
     })
 
     onMounted(() => {
-        if( statStore.isChanged ){
-            userStore.loadUserProgress()
-            userStore.loadUserStat()
-            statStore.isChanged = false
-        }
+        userStore.loadUserProgress()
     })
 
     const percent = (current :any, total :any) => total > 0 ? Math.ceil(current/total * 100) : 0
@@ -136,16 +131,6 @@
                     <va-list-item-section icon><va-chip color="success" size="small">{{ userStore.progress?.series }} дней</va-chip></va-list-item-section>
                 </va-list-item>
             </va-card-content>
-<!--
-            <va-card-title><va-icon name="hotel_class" class="card-icon"/>Всего изучено</va-card-title>
-            <va-card-content>
-                <va-progress-bar :model-value="percent(userStore.progress?.overall?.learned, userStore.progress?.overall?.total)" showPercent></va-progress-bar>
-                <va-list-item>
-                    <va-list-item-section></va-list-item-section>
-                    <va-list-item-section icon>{{ userStore.progress?.overall?.learned }} / {{ userStore.progress?.overall?.total }}</va-list-item-section>
-                </va-list-item>
-            </va-card-content>
--->
             <va-card-content>
                 <progress-chart 
                     :data="weeklyStatistic"

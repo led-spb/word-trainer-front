@@ -22,46 +22,43 @@ export const useUsersStore = defineStore('users', () => {
     const ratingApiService = new RatingApiService(axiosInstance)
     const statisticsApiService = new StatisticsApiService(axiosInstance)
 
-    // reload propgress and statistic on user changed
+    // reload progress and statistic on user changed
     watch(user, (value) => {
         if(value){
             loadUserProgress()
-            loadUserStat()
         }
     })
 
-    const loadUserInfo = () => {
-        userApiService.getCurrentUser().then( (value: User) => {
-            user.value = value
-            localStorage.setItem('user', value.name)
-        })
+    async function loadUserInfo() {
+        user.value = {...await userApiService.getCurrentUser(), progressLoaded: false}
+        localStorage.setItem('user', user.value.name)
     }
 
-    function loadUserProgress(){
-        userApiService.getUserProgress().then( (value: UserProgress) => {
-            progress.value = value
-        })
+    async function loadUserProgress(){
+        if( !user.value || user.value.progressLoaded )
+            return
+
+        await Promise.all([
+            (async () => { 
+                progress.value = await userApiService.getUserProgress()
+            })(),
+            (async () => { 
+                statistics.value = await statisticsApiService.getUserStat()
+            })(),
+            (async () => {
+                topicStatistic.value = await statisticsApiService.getTopicStatistics()
+            })(),
+            (async () => { 
+                troubles.value = await statisticsApiService.getUserTrobles()
+            })(),
+        ])
+
+        user.value.progressLoaded = true
     }
 
-    function loadUserStat(){
-        statisticsApiService.getUserStat().then( (data: UserDayStatistics[]) => {
-            statistics.value = data
-        })
-
-        statisticsApiService.getUserTrobles().then( (data: UserWordStatistics[]) => {
-            troubles.value = data
-        })
-
-        statisticsApiService.getTopicStatistics().then( (data: TopicStatistics[]) => {
-            topicStatistic.value = data
-        })
+    async function loadUserRating(){
+        rating.value = await ratingApiService.getUserRating()
     }
 
-    function loadUserRating(){
-        ratingApiService.getUserRating().then( (value: UserRating[]) => {
-            rating.value = value
-        })
-    }
-
-    return { user, progress, troubles, statistics, topicStatistic, rating, loadUserInfo, loadUserProgress, loadUserStat, loadUserRating}
+    return { user, progress, troubles, statistics, topicStatistic, rating, loadUserInfo, loadUserProgress, loadUserRating }
 })

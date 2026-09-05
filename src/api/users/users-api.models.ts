@@ -5,6 +5,7 @@ export interface User {
     name: string
     dailyGoal: number
     avatar: string
+    progressLoaded?: boolean
 }
 
 export interface UserToken {

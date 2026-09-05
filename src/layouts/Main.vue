@@ -46,37 +46,40 @@
         return useRoute().name == link.route
     }
 
+    // set global request error handler
+    axiosInstance.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if( error.response && error.response.status == 401 ){
+                authStore.setAccessToken(null)
+                router.push({name: 'login'})
+                return Promise.reject(error)
+            }
+
+            toastManager.notify({
+                message: 'Ошибка при обработке запроса на сервере',
+                color: 'danger'
+            });
+
+            return Promise.reject(error)
+        }
+    )
+
+    // watch accessToken is changed and reload user
     watch(
         () => authStore.accessToken, 
         (value) => {
-            userStore.loadUserInfo()
+            if( value ){
+                userStore.reloadUserInfo().catch( error => {
+                    authStore.setAccessToken(null)
+                    router.push({name: 'login'})                
+                })
+            }
         },
         {
             immediate: true
         }
     )
-
-    onMounted(() => {
-        axiosInstance.interceptors.response.use(
-            (response) => response,
-            (error) => {
-                console.log('Global request handler', error);
-
-                if( error.response && error.response.status == 401 ){
-                    authStore.setAccessToken(null)
-                    router.push({name: 'login'})
-                    return Promise.reject(error)
-                }
-
-                toastManager.notify({
-                    message: 'Ошибка при обработке запроса на сервере',
-                    color: 'danger'
-                });
-
-                return Promise.reject(error)
-            }
-        )
-    })
 </script>
 
 

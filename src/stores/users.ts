@@ -29,7 +29,7 @@ export const useUsersStore = defineStore('users', () => {
         }
     })
 
-    async function loadUserInfo() {
+    async function reloadUserInfo() {
         user.value = {...await userApiService.getCurrentUser(), progressLoaded: false}
         localStorage.setItem('user', user.value.name)
     }
@@ -60,5 +60,5 @@ export const useUsersStore = defineStore('users', () => {
         rating.value = await ratingApiService.getUserRating()
     }
 
-    return { user, progress, troubles, statistics, topicStatistic, rating, loadUserInfo, loadUserProgress, loadUserRating }
+    return { user, progress, troubles, statistics, topicStatistic, rating, reloadUserInfo, loadUserProgress, loadUserRating }
 })

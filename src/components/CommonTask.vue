@@ -139,7 +139,7 @@
                 <template v-if="statistics.success + statistics.failed">
                     <div class="row">
                         <va-spacer/>
-                        <va-button class="primary" icon-right="arrow_back" v-on:click="emit('finish')">Завершить</va-button>
+                        <va-button class="primary" icon-right="check" v-on:click="emit('finish')">Завершить</va-button>
                         <va-spacer/>
                     </div>
                 </template>
@@ -157,7 +157,7 @@
                     <va-divider/>
                     <div class="row">
                         <va-spacer/>
-                        <va-button class="primary" icon-right="check" v-on:click="emit('start')" :disabled="task.topics.length == 0">Начать</va-button>
+                        <va-button class="primary" icon-right="arrow_forward" v-on:click="emit('start')" :disabled="task.topics.length == 0">Начать</va-button>
                         <va-spacer/>
                     </div>
                 </template>

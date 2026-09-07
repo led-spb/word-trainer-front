@@ -15,13 +15,17 @@ export const useTasksStore = defineStore('tasks', () => {
     const countWord = ref(0)
     const currentTask = ref<Task>()
 
-    function nextWord() {
+    const nextWord = () => {
         const index = Math.trunc(Math.random()*wordsBank.value.length)
         word.value = wordsBank.value.splice(index, 1).pop()
         countWord.value = Math.min(countWord.value+1, totalWords.value)
+
+        if( wordsBank.value.length == 0 ){
+            finishTask()
+        }
     }
 
-    function setWords(values: Word[]){
+    const setWords = (values: Word[]) => {
         word.value = undefined
         wordsBank.value = values
         

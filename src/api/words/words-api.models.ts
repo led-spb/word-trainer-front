@@ -17,7 +17,7 @@ export interface Word {
     result: boolean
 
     rules: number[]
-    tags: number[]
+    topics: number[]
 
     accents: Accent[]
     spellings: Spelling[]

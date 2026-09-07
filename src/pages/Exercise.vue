@@ -6,37 +6,34 @@
     import { StatisticsApiService } from '@/api/statistics';
 
     import { useTasksStore, useTopicsStore, useRuleStore, useUsersStore } from '@/stores';
-
     import CommonTask from '@/components/CommonTask.vue';
+    import AccentExam from '@/components/AccentExam.vue';
     import SpellingExam from '@/components/SpellingExam.vue';
     import type { Rule } from '@/api/rules';
 
-    
+
     const wordsApiService = new WordsApiService(axiosInstance)
     const statisticApiService = new StatisticsApiService(axiosInstance)
 
     const task = ref({
         count: 20,
-        errors: 30,
         level: 10,
+        errors: 30,
         topics: [],
     })
-    const statistic = ref({ success: 0, failed: 0})
-
+    const statistic = ref({success: 0, failed: 0})
     const tasksStore = useTasksStore()
     const topicsStore = useTopicsStore()
     const ruleStore = useRuleStore()
     const userStore = useUsersStore()
 
-    const onlySpellingTopics = computed(() => topicsStore.topics.filter( topic => topic.type == "spelling"))
-    
-    const rules = computed( ()=> {
+    const onlyAccentTopics = computed(() => topicsStore.topics.filter( topic => topic.type == "accent" ))
+    const rules = computed( () => {
         if( tasksStore.currentWord == undefined || tasksStore.currentWord.rules == undefined ){
             return []
         }
-
         return ruleStore.rules.filter(
-            (rule: Rule) => rule.type == 'spelling' && tasksStore.currentWord?.rules.findIndex(ruleId => rule.id == ruleId) != -1
+            (rule: Rule) => rule.type == 'accent' && tasksStore.currentWord?.rules.findIndex(ruleId => rule.id == ruleId) != -1
         )
     })
     watch( () => tasksStore?.currentWord?.rules, async (values) => {
@@ -45,17 +42,19 @@
         }
     })
 
-    const startExam = () => {
+    async function startExam(){
         statistic.value = {success: 0, failed: 0}
 
-        wordsApiService.getSpellingTask(task.value.topics, task.value.count, task.value.errors)
-            .then( (data: Word[]) => {
-                tasksStore.setWords(data)
-                tasksStore.nextWord()
-            })
+        const results = await Promise.all([
+            wordsApiService.getAccentTask([], 20, 100),
+            wordsApiService.getSpellingTask([], 20, 100)
+        ])
+
+        tasksStore.setWords([...results[0], ...results[1]] )
+        tasksStore.nextWord()
     }
 
-    const onCompleteWord = (result: boolean) => {
+    function onCompleteWord(result: boolean){
         if( tasksStore.currentWord ){
             if( result ){
                 statistic.value.success += 1;
@@ -68,29 +67,20 @@
         }
     }
 
-    const sendUserRport = () => {
-        if( tasksStore.currentWord ) wordsApiService.sendWordReport(tasksStore.currentWord)
-    }
-
     onMounted(() => {
-        if( !tasksStore.currentWord?.spellings ){
-            tasksStore.setWords([])
-        }
+        startExam()
     })
 </script>
 
 <template>
     <common-task class="item"
-        title="Орфограммы/Словарные слова" 
-        v-model:statistics="statistic"
-        v-model:word="tasksStore.currentWord"
-        v-model:task="task"
-        :topics="onlySpellingTopics"
-        :rules="rules"
-        :total="tasksStore.totalWords"
-        :current="tasksStore.countWord"
-        @start="startExam" @next="tasksStore.nextWord" @complete="onCompleteWord" @report="sendUserRport">
-
-        <spelling-exam v-model="tasksStore.currentWord"></spelling-exam>
+        title="Повторение"
+        v-model:word="tasksStore.currentWord" v-model:statistics="statistic" v-model:task="task"
+        :topics="onlyAccentTopics" :rules="rules" :total="tasksStore.totalWords" :current="tasksStore.countWord"
+        @start="startExam" @next="tasksStore.nextWord" @complete="onCompleteWord">
+        <template v-if="tasksStore.currentWord">
+            <accent-exam v-model="tasksStore.currentWord" v-if="tasksStore.currentWord.accents && tasksStore.currentWord.accents.length > 0" />
+            <spelling-exam v-model="tasksStore.currentWord" v-else/>
+        </template>
     </common-task>
 </template>

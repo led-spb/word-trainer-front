@@ -5,14 +5,17 @@ import { axiosInstance } from '@/api/config'
 import { UsersApiService } from '@/api/users'
 import { StatisticsApiService } from '@/api/statistics'
 import { RatingApiService, type UserRating } from '@/api/rating'
+import { TasksApiService } from '@/api/tasks'
 import type { User, UserProgress } from '@/api/users'
 import type { UserDayStatistics, UserWordStatistics, TopicStatistics } from '@/api/statistics'
+import type { Task } from '@/api/tasks'
 
 
 export const useUsersStore = defineStore('users', () => {
     const user = ref<User>()
     const statistics = ref<UserDayStatistics[]>([])
     const topicStatistic = ref<TopicStatistics[]>([])
+    const tasks = ref<Task[]>([])
 
     const progress = ref<UserProgress>()
     const troubles = ref<UserWordStatistics[]>([])
@@ -21,6 +24,7 @@ export const useUsersStore = defineStore('users', () => {
     const userApiService = new UsersApiService(axiosInstance)
     const ratingApiService = new RatingApiService(axiosInstance)
     const statisticsApiService = new StatisticsApiService(axiosInstance)
+    const tasksApiService = new TasksApiService(axiosInstance)
 
     // reload progress and statistic on user changed
     watch(user, (value) => {
@@ -51,6 +55,9 @@ export const useUsersStore = defineStore('users', () => {
             (async () => { 
                 troubles.value = await statisticsApiService.getUserTrobles()
             })(),
+            (async () => {
+                tasks.value = await tasksApiService.getUserTasks()
+            })(),
         ])
 
         user.value.progressLoaded = true
@@ -60,5 +67,5 @@ export const useUsersStore = defineStore('users', () => {
         rating.value = await ratingApiService.getUserRating()
     }
 
-    return { user, progress, troubles, statistics, topicStatistic, rating, reloadUserInfo, loadUserProgress, loadUserRating }
+    return { user, tasks, progress, troubles, statistics, topicStatistic, rating, reloadUserInfo, loadUserProgress, loadUserRating }
 })

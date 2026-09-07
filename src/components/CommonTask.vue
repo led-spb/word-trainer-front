@@ -48,8 +48,8 @@
 
     watch( () => props.topics, (values) => {
             const topicsMap :any = {};
-            values.forEach(element => {
-                topicsMap[element.id] = { id: element.id, parent_id: element.parent_id, label: element.description, children: [], expanded: false }
+            values.forEach(topic => {
+                topicsMap[topic.id] = { id: topic.id, parent_id: topic.parent_id, label: topic.name, children: [], expanded: false }
             });
 
             Object.values(topicsMap).forEach((item :any) => {

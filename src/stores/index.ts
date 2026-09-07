@@ -1,9 +1,9 @@
 import { useAuthStore } from "./auth";
-import { useWordsStore } from "./words";
+import { useTasksStore } from "./tasks";
 import { useUsersStore } from "./users";
 import { useTopicsStore } from "./topics";
 import { useRuleStore } from "./rules";
 
 export {
-    useAuthStore, useWordsStore, useUsersStore, useTopicsStore, useRuleStore
+    useAuthStore, useTasksStore, useUsersStore, useTopicsStore, useRuleStore
 }

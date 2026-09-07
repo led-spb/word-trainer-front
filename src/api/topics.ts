@@ -2,7 +2,7 @@ import { axiosInstance } from './config'
 
 export interface Topic {
     id: number
-    description: string
+    name: string
     parent_id?: number
     type: "accent"|"spelling"
 }
@@ -10,7 +10,7 @@ export interface Topic {
 
 const topicsApi = {
     async getTopicsDictioary(): Promise<Topic[]>{
-        const response = await axiosInstance({method: 'get', url: 'tags', })
+        const response = await axiosInstance({method: 'get', url: 'topics', })
         return response.data
     },
 }

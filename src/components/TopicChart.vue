@@ -8,7 +8,7 @@
     ChartJS.register(Title, Tooltip, Legend, Filler, ChartDataLabels, LineElement, RadialLinearScale, PointElement )
 
     interface TopicData {
-        description: string
+        name: string
         percent: number
     }
 
@@ -33,7 +33,7 @@
 
     const chartData = computed(() => {
         return {
-            labels: props.data.map( (topic) => splitString(topic.description, 12) ),
+            labels: props.data.map( (topic) => splitString(topic.name, 12) ),
             datasets: [{
                 data: props.data.map( (topic) => Math.ceil(topic.percent * 1000)/10),
                 fill: true,

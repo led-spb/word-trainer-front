@@ -17,5 +17,5 @@ export interface UserWordStatistics extends Statistic {
 
 export interface TopicStatistics extends UserDayStatistics {
     id?: number
-    description: string
+    name: string
 }

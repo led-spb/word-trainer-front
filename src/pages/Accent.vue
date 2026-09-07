@@ -5,7 +5,7 @@
     import { WordsApiService, type Word } from '@/api/words';
     import { StatisticsApiService } from '@/api/statistics';
 
-    import { useWordsStore, useTopicsStore, useRuleStore, useUsersStore } from '@/stores';
+    import { useTasksStore, useTopicsStore, useRuleStore, useUsersStore } from '@/stores';
     import CommonTask from '@/components/CommonTask.vue';
     import AccentExam from '@/components/AccentExam.vue';
     import type { Rule } from '@/api/rules';
@@ -21,21 +21,21 @@
         topics: [],
     })
     const statistic = ref({success: 0, failed: 0})
-    const wordsStore = useWordsStore()
+    const tasksStore = useTasksStore()
     const topicsStore = useTopicsStore()
     const ruleStore = useRuleStore()
     const userStore = useUsersStore()
 
     const onlyAccentTopics = computed(() => topicsStore.topics.filter( topic => topic.type == "accent" ))
     const rules = computed( () => {
-        if( wordsStore.currentWord == undefined || wordsStore.currentWord.rules == undefined ){
+        if( tasksStore.currentWord == undefined || tasksStore.currentWord.rules == undefined ){
             return []
         }
         return ruleStore.rules.filter(
-            (rule: Rule) => rule.type == 'accent' && wordsStore.currentWord?.rules.findIndex(ruleId => rule.id == ruleId) != -1
+            (rule: Rule) => rule.type == 'accent' && tasksStore.currentWord?.rules.findIndex(ruleId => rule.id == ruleId) != -1
         )
     })
-    watch( () => wordsStore?.currentWord?.rules, async (values) => {
+    watch( () => tasksStore?.currentWord?.rules, async (values) => {
         if( values ){
             values.forEach( item => ruleStore.loadRule(item) )
         }
@@ -45,27 +45,27 @@
         statistic.value = {success: 0, failed: 0}
         wordsApiService.getAccentTask(task.value.topics, task.value.count, task.value.errors)
             .then( (data: Word[]) => {
-                wordsStore.setWords(data)
-                wordsStore.nextWord()
+                tasksStore.setWords(data)
+                tasksStore.nextWord()
             })
     }
 
     function onCompleteWord(result: boolean){
-        if( wordsStore.currentWord ){
+        if( tasksStore.currentWord ){
             if( result ){
                 statistic.value.success += 1;
-                statisticApiService.updateUserStat({success: [wordsStore.currentWord.id], failed: []});
+                statisticApiService.updateUserStat({success: [tasksStore.currentWord.id], failed: []});
             }else{
                 statistic.value.failed += 1;
-                statisticApiService.updateUserStat({success: [], failed: [wordsStore.currentWord.id]});
+                statisticApiService.updateUserStat({success: [], failed: [tasksStore.currentWord.id]});
             }
             userStore.user!.progressLoaded = false;
         }
     }
 
     onMounted(() => {
-        if( !wordsStore.currentWord?.accents ){
-            wordsStore.setWords([])
+        if( !tasksStore.currentWord?.accents ){
+            tasksStore.setWords([])
         }
     })
 </script>
@@ -73,9 +73,9 @@
 <template>
     <common-task class="item"
         title="Ударения"
-        v-model:word="wordsStore.currentWord" v-model:statistics="statistic" v-model:task="task"
-        :topics="onlyAccentTopics" :rules="rules" :total="wordsStore.totalWords" :current="wordsStore.countWord"
-        @start="startExam" @next="wordsStore.nextWord" @complete="onCompleteWord">
-        <accent-exam v-model="wordsStore.currentWord"></accent-exam>
+        v-model:word="tasksStore.currentWord" v-model:statistics="statistic" v-model:task="task"
+        :topics="onlyAccentTopics" :rules="rules" :total="tasksStore.totalWords" :current="tasksStore.countWord"
+        @start="startExam" @next="tasksStore.nextWord" @complete="onCompleteWord">
+        <accent-exam v-model="tasksStore.currentWord"></accent-exam>
     </common-task>
 </template>

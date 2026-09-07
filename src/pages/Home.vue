@@ -62,21 +62,21 @@
             const values = statistic.filter((value: TopicStatistics) => value.recorded_at >= offsetDate)
 
             const groupped: Map<string, TopicStatistics> = values.reduce((acc, current) => {
-                const group = acc.get(current.description) || { 
+                const group = acc.get(current.name) || { 
                     recorded_at: offsetDate, 
-                    description: current.description, 
+                    name: current.name, 
                     success: 0, failed: 0, total: 0, percent: 0
                 };
                 group.success += current.success;
                 group.failed += current.failed;
                 group.total += current.total;
 
-                acc.set(current.description, group)
+                acc.set(current.name, group)
                 return acc;
             }, new Map<string, TopicStatistics>());
 
             const result = [...groupped.values()].map( (value: TopicStatistics) => ({...value, percent: value.total > 0 ? value.success/value.total : 0 }))
-            result.sort((a, b) => a.description.localeCompare(b.description))
+            result.sort((a, b) => a.name.localeCompare(b.name))
 
             item.topics = result;
         })
@@ -130,6 +130,11 @@
                     <va-list-item-section>Серия</va-list-item-section>
                     <va-list-item-section icon><va-chip color="success" size="small">{{ userStore.progress?.series }} дней</va-chip></va-list-item-section>
                 </va-list-item>
+            </va-card-content>
+            <va-card-content>
+                <div class="row flex justify-space-between">
+                    <va-button preset="primary" v-for="task in userStore.tasks" :color="task.executed_at ? 'success' : 'primary'">{{ task.name }}</va-button>
+                </div>
             </va-card-content>
             <va-card-content>
                 <progress-chart 

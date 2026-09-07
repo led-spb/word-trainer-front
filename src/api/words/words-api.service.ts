@@ -11,11 +11,11 @@ export class WordsApiService {
         return null
     }
 
-    public async getSpellingTask(tags: number[], count :number, errors :number): Promise<Word[]> {
+    public async getSpellingTask(topics: number[], count :number, errors :number): Promise<Word[]> {
         const response = await this.axiosInstance.get<Word[]>(
             'spellings/task', {
                 params: {
-                    tags: tags,
+                    topics: topics,
                     count: count,
                     errors: Math.trunc(count*errors/100),
                 }
@@ -24,11 +24,11 @@ export class WordsApiService {
         return response.data
     }
 
-    public async getAccentTask(tags: number[], count :number, errors :number): Promise<Word[]>{
+    public async getAccentTask(topics: number[], count :number, errors :number): Promise<Word[]>{
         const response = await this.axiosInstance.get<Word[]>(
             'accents/task', {
                 params: {
-                    tags: tags,
+                    topics: topics,
                     count: count,
                     errors: Math.trunc(count*errors/100),
                 }

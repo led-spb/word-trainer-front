@@ -22,16 +22,6 @@ const router = createRouter({
                     meta: { requiresAuth: true },
                 },
                 {
-                    path: 'accent', name: 'accent',
-                    component: () => import('@/pages/Accent.vue'),
-                    meta: { requiresAuth: true },
-                },
-                {
-                    path: 'spelling', name: 'spelling',
-                    component: () => import('@/pages/Spelling.vue'),
-                    meta: { requiresAuth: true },
-                },
-                {
                     path: 'login', name: 'login',
                     component: () => import('@/pages/Login.vue')
                 },

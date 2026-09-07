@@ -2,7 +2,6 @@
     import { ref, computed, onMounted, watch } from 'vue';
 
     import { axiosInstance } from '@/api/config';
-    import { WordsApiService, type Word } from '@/api/words';
     import { StatisticsApiService } from '@/api/statistics';
 
     import { useTasksStore, useTopicsStore, useRuleStore, useUsersStore } from '@/stores';
@@ -10,9 +9,10 @@
     import AccentExam from '@/components/AccentExam.vue';
     import SpellingExam from '@/components/SpellingExam.vue';
     import type { Rule } from '@/api/rules';
+    import { useRouter } from 'vue-router';
+    
 
-
-    const wordsApiService = new WordsApiService(axiosInstance)
+    const router = useRouter()
     const statisticApiService = new StatisticsApiService(axiosInstance)
 
     const task = ref({
@@ -27,13 +27,13 @@
     const ruleStore = useRuleStore()
     const userStore = useUsersStore()
 
-    const onlyAccentTopics = computed(() => topicsStore.topics.filter( topic => topic.type == "accent" ))
+    const topics = computed(() => topicsStore.topics)
     const rules = computed( () => {
         if( tasksStore.currentWord == undefined || tasksStore.currentWord.rules == undefined ){
             return []
         }
         return ruleStore.rules.filter(
-            (rule: Rule) => rule.type == 'accent' && tasksStore.currentWord?.rules.findIndex(ruleId => rule.id == ruleId) != -1
+            (rule: Rule) => tasksStore.currentWord?.rules.findIndex(ruleId => rule.id == ruleId) != -1
         )
     })
     watch( () => tasksStore?.currentWord?.rules, async (values) => {
@@ -42,25 +42,24 @@
         }
     })
 
-    async function startExam(){
-        statistic.value = {success: 0, failed: 0}
+    async function startExercise(){
+        await tasksStore.makeTask(
+            task.value.count,
+            Math.ceil(task.value.count*(task.value.errors/100)),
+            task.value.topics
+        )
+    }
 
-        const results = await Promise.all([
-            wordsApiService.getAccentTask([], 20, 100),
-            wordsApiService.getSpellingTask([], 20, 100)
-        ])
-
-        tasksStore.setWords([...results[0], ...results[1]] )
-        tasksStore.nextWord()
+    function finishExercise(){
+        tasksStore.finishTask()
+        router.back()
     }
 
     function onCompleteWord(result: boolean){
         if( tasksStore.currentWord ){
             if( result ){
-                statistic.value.success += 1;
                 statisticApiService.updateUserStat({success: [tasksStore.currentWord.id], failed: []});
             }else{
-                statistic.value.failed += 1;
                 statisticApiService.updateUserStat({success: [], failed: [tasksStore.currentWord.id]});
             }
             userStore.user!.progressLoaded = false;
@@ -68,16 +67,19 @@
     }
 
     onMounted(() => {
-        startExam()
+        statistic.value = {success: 0, failed: 0}
     })
 </script>
 
 <template>
     <common-task class="item"
-        title="Повторение"
+        title="Упражнение"
         v-model:word="tasksStore.currentWord" v-model:statistics="statistic" v-model:task="task"
-        :topics="onlyAccentTopics" :rules="rules" :total="tasksStore.totalWords" :current="tasksStore.countWord"
-        @start="startExam" @next="tasksStore.nextWord" @complete="onCompleteWord">
+        :topics="topics" :rules="rules" :total="tasksStore.totalWords" :current="tasksStore.countWord"
+        @start="startExercise"
+        @finish="finishExercise"
+        @next="tasksStore.nextWord"
+        @complete="onCompleteWord">
         <template v-if="tasksStore.currentWord">
             <accent-exam v-model="tasksStore.currentWord" v-if="tasksStore.currentWord.accents && tasksStore.currentWord.accents.length > 0" />
             <spelling-exam v-model="tasksStore.currentWord" v-else/>

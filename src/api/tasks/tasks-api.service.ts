@@ -19,4 +19,17 @@ export class TasksApiService {
         const response = await this.axiosInstance.get<Word[]>(`tasks/${taskId}`)
         return response.data
     }
+
+    async makeTaskContent(word_count: number, repeat_count: number, topics: number[]): Promise<Word[]>{
+        const response = await this.axiosInstance.get<Word[]>('tasks/prepare', {
+            params: {
+                word_count, repeat_count, topics
+            }
+        })
+        return response.data
+    }
+
+    async completeTask(taskId: number): Promise<undefined>{
+        await this.axiosInstance.put(`tasks/${taskId}/complete`)
+    }
 }

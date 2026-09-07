@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ref, onMounted, computed, watch } from 'vue';
-    import { useUsersStore } from '@/stores';
+    import { useUsersStore, useTasksStore } from '@/stores';
+    import { useRouter} from 'vue-router'
 
     import TaskStatistic from '@/components/TaskStatistic.vue';
     import Word from '@/components/Word.vue';
@@ -8,10 +9,10 @@
     import TopicChart from '@/components/TopicChart.vue';
     import { useColors } from 'vuestic-ui';
     import type { Statistic, TopicStatistics, UserDayStatistics } from '@/api/statistics';
-
+    import type { Task } from '@/api/tasks';
 
     const colors = useColors()
-
+    const router = useRouter()
     const currentStatOffset = ref(0)
 
     const tabs = ref([
@@ -21,6 +22,7 @@
         // {label: 'Всего', value: 1000, stat: <Statistic>{failed:0, total: 0, success: 0, percent: 0}, topics: <TopicStatistics[]>[] },
     ])
     const userStore = useUsersStore()
+    const taskStore = useTasksStore()
 
     const dayOffsetFromNow = (offset: number): Date => {
         const now = new Date()
@@ -109,6 +111,15 @@
         return userStore.troubles
     })
 
+    const startTask = async (task: Task) => {
+        await taskStore.loadTask(task);
+        router.push({name: 'exercise'});
+    }
+
+    const taskIsDone = (task: Task): boolean => {
+        return task.executed_at !== undefined && (new Date(task.executed_at)).setHours(0,0,0,0) == (new Date()).setHours(0,0,0,0)
+    }
+
     onMounted(() => {
         userStore.loadUserProgress()
     })
@@ -133,7 +144,13 @@
             </va-card-content>
             <va-card-content>
                 <div class="row flex justify-space-between">
-                    <va-button preset="primary" v-for="task in userStore.tasks" :color="task.executed_at ? 'success' : 'primary'">{{ task.name }}</va-button>
+                    <va-button 
+                        preset="primary"
+                        @click="startTask(task)"
+                        :color="taskIsDone(task) ? 'success' : 'primary'"
+                        v-for="task in userStore.tasks">
+                        {{ task.name }}
+                    </va-button>
                 </div>
             </va-card-content>
             <va-card-content>

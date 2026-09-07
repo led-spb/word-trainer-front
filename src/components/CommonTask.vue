@@ -74,7 +74,7 @@
         }
     );
 
-    const emit = defineEmits(['complete', 'next', 'start', 'report']);
+    const emit = defineEmits(['complete', 'next', 'start', 'finish', 'report']);
 
     const inProcess = computed(() => typeof word.value?.result == 'undefined');
     const isSuccess = computed(() => word.value && word.value.result);
@@ -136,22 +136,31 @@
                 </div>
             </template>
             <template v-else>
-                <va-form>
-                    <label class="va-input-label" style="color: var(--va-primary)">Список тем</label>
-                    <va-tree-view selectable expand-all :nodes="taskTopicNodes" v-model:checked="task.topics"></va-tree-view>
+                <template v-if="statistics.success + statistics.failed">
+                    <div class="row">
+                        <va-spacer/>
+                        <va-button class="primary" icon-right="arrow_back" v-on:click="emit('finish')">Завершить</va-button>
+                        <va-spacer/>
+                    </div>
+                </template>
+                <template v-else>
+                    <va-form>
+                        <label class="va-input-label" style="color: var(--va-primary)">Список тем</label>
+                        <va-tree-view selectable expand-all :nodes="taskTopicNodes" v-model:checked="task.topics"></va-tree-view>
 
-                    <div class="row" style="min-height: 2vh;"></div>
-                    <va-slider label="Количество слов" pins track-label-visible :min="20" :max="50" :step="10" v-model="task.count"></va-slider>
-                    <div class="row" style="min-height: 2vh;"></div>
-                    <va-slider label="РНО %" pins track-label-visible :min="0" :max="100" :step="10" v-model="task.errors"></va-slider>
-                    <div class="row" style="min-height: 2vh;"></div>
-                </va-form>
-                <va-divider/>
-                <div class="row">
-                    <va-spacer/>
-                    <va-button class="primary" icon-right="arrow_forward" v-on:click="emit('start')" :disabled="task.topics.length == 0">Начать</va-button>
-                    <va-spacer/>
-                </div>
+                        <div class="row" style="min-height: 2vh;"></div>
+                        <va-slider label="Количество слов" pins track-label-visible :min="20" :max="50" :step="10" v-model="task.count"></va-slider>
+                        <div class="row" style="min-height: 2vh;"></div>
+                        <va-slider label="РНО %" pins track-label-visible :min="0" :max="100" :step="10" v-model="task.errors"></va-slider>
+                        <div class="row" style="min-height: 2vh;"></div>
+                    </va-form>
+                    <va-divider/>
+                    <div class="row">
+                        <va-spacer/>
+                        <va-button class="primary" icon-right="check" v-on:click="emit('start')" :disabled="task.topics.length == 0">Начать</va-button>
+                        <va-spacer/>
+                    </div>
+                </template>
             </template>
 
         </va-card-content>

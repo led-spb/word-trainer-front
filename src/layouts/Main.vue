@@ -26,8 +26,7 @@
 
     const links = [
         {name: 'Домой', route: 'home', icon: 'home', visible: () => authStore.isAuthentificated},
-        {name: 'Орфограммы', route: 'spelling', icon: 'spellcheck', visible: () => authStore.isAuthentificated},
-        {name: 'Ударения', route: 'accent', icon: 'format_size', visible: () => authStore.isAuthentificated},
+        {name: 'Упражнения', route: 'exercise', icon: 'spellcheck', visible: () => authStore.isAuthentificated},
         {name: 'Рейтинг', route: 'rating', icon: 'leaderboard', visible: () => authStore.isAuthentificated},
         // {name: 'Правила', route: 'rules', icon: 'rule', visible: () => authStore.isAuthentificated},
         {name: 'Вход', route: 'login', icon: 'login', visible: () => !authStore.isAuthentificated},
